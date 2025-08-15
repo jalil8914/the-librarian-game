@@ -42,9 +42,23 @@ export class Kid extends Entity {
     
     // Sound effects
     this.hasPlayedLaughSound = false; // Prevent multiple laugh sounds per flee
+
+    // Stun state
+    this.isStunned = false;
+    this.stunTimer = 0;
   }
   
   update(deltaTime) {
+    // Handle stun
+    if (this.isStunned) {
+      this.stunTimer -= deltaTime;
+      if (this.stunTimer <= 0) {
+        this.isStunned = false;
+      }
+      // Skip all other updates while stunned
+      return;
+    }
+
     // Update cooldowns
     if (this.bookStealCooldown > 0) {
       this.bookStealCooldown -= deltaTime;
@@ -446,6 +460,16 @@ export class Kid extends Entity {
       this.carriedBook.y = this.y - this.carriedBook.height - 4;
       this.carriedBook.render(ctx, interpolation);
     }
+
+    // Draw stun effect
+    if (this.isStunned) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
+      ctx.font = 'bold 20px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Zzz', this.getCenterX(), this.y - 5);
+      ctx.restore();
+    }
   }
   
   dropBook() {
@@ -708,5 +732,14 @@ export class Kid extends Entity {
       laughSound.play().catch(e => console.log('Kid laugh sound play failed:', e));
       this.hasPlayedLaughSound = true;
     }
+  }
+
+  stun(duration) {
+    this.isStunned = true;
+    this.stunTimer = duration;
+    this.vx = 0;
+    this.vy = 0;
+    this.isMoving = false;
+    // Maybe add a visual effect for being stunned
   }
 }

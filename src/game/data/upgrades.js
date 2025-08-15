@@ -1,3 +1,5 @@
+import { ShushWave } from '../entities/skills/ShushWave.js';
+
 export const UPGRADES = {
   // Passive upgrades based on the design doc
   speed: {
@@ -84,7 +86,10 @@ export const UPGRADES = {
     maxLevel: 5,
     isWeapon: true,
     effect: (player, level) => {
-      // TODO: Implement weapon system
+      // For weapons, the effect is to add the skill to the skill manager
+      // The skill itself will handle level-based improvements
+      const newSkill = new ShushWave(player, level);
+      player.addSkill(newSkill);
     },
     getDescription: (level) => `Level ${level} Shush Wave`
   }
@@ -93,14 +98,19 @@ export const UPGRADES = {
 // Helper function to get random upgrades
 export function getRandomUpgrades(count = 3, playerUpgrades = {}) {
   const availableUpgrades = Object.values(UPGRADES).filter(upgrade => {
-    // Filter out weapons and removed upgrades
-    if (upgrade.isWeapon || upgrade.id === 'health') return false;
-    
-    // Check if upgrade is maxed out
     const currentLevel = playerUpgrades[upgrade.id] || 0;
-    return currentLevel < upgrade.maxLevel;
+    if (currentLevel >= upgrade.maxLevel) {
+      return false; // Filter out maxed-out upgrades
+    }
+
+    // Allow a weapon to be chosen only if it hasn't been chosen before (level 0)
+    if (upgrade.isWeapon) {
+      return currentLevel === 0;
+    }
+
+    return true;
   });
-  
+
   // Shuffle and pick
   const shuffled = [...availableUpgrades].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, Math.min(count, shuffled.length));
