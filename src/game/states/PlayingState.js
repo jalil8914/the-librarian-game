@@ -252,6 +252,9 @@ export class PlayingState extends State {
     if (this.player) {
       this.player.update(deltaTime);
     }
+
+    // Update skills
+    this.game.skillManager.update(deltaTime, { kids: this.kids });
     
     // Update shelves
     for (const shelf of this.shelves) {
@@ -393,6 +396,9 @@ export class PlayingState extends State {
     if (this.player) {
       renderer.addToLayer('entities', this.player);
     }
+
+    // Render skills
+    this.game.skillManager.render(renderer);
     
     // Render all layers
     renderer.render(interpolation);

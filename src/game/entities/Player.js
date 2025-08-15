@@ -394,6 +394,10 @@ export class Player extends Entity {
         break;
     }
   }
+
+  addSkill(skill) {
+    this.game.skillManager.addSkill(skill);
+  }
   
   getXPMultiplier() {
     return this.stats.xpMultiplier;
